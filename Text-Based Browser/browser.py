@@ -43,32 +43,46 @@ def check_url(url):
     else:
         return False
 
+
 def save_file(name, page):
-    with open(name,'w') as f:
-        f.write(page)
+    with open(name, 'w') as fi:
+        fi.write(page)
+
 
 # Create target Directory if don't exist
 dir_name = sys.argv[1] if len(sys.argv) > 1 else None
 if (dir_name is not None) and (not os.path.exists(dir_name)):
     os.mkdir(dir_name)
+history = []
 user_command = None
-while user_command != 'exit':
+while True:
     user_command = input()
+    if user_command == 'back':
+        if len(history)>=2:
+            history.pop()
+            print(history.pop())
+        continue
+    if user_command == 'exit':
+        break
     if check_url(user_command):
         if user_command == 'bloomberg.com':
             print(bloomberg_com)
-            name_file=f'{dir_name}\\bloomberg'
+            name_file = f'{dir_name}\\bloomberg'
             save_file(name_file, bloomberg_com)
+            history.append(bloomberg_com)
             continue
         elif user_command == 'nytimes.com':
             print(nytimes_com)
-            name_file=f'{dir_name}\\nytimes'
+            name_file = f'{dir_name}\\nytimes'
             save_file(name_file, nytimes_com)
+            history.append(nytimes_com)
             continue
+        else:
+            print('Error: Incorrect URL')
     else:
         path_to_file = f'{dir_name}\\{user_command}'
         if os.path.exists(path_to_file):
-            with open(path_to_file,'r') as f:
+            with open(path_to_file, 'r') as f:
                 print(f.read())
         else:
             print('Error: Incorrect URL')
