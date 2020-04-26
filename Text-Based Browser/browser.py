@@ -1,6 +1,7 @@
 import os
 import sys
 import requests
+from bs4 import BeautifulSoup
 
 
 def check_url(url):
@@ -25,6 +26,11 @@ def page_load(url):
         return False, ''
 
 
+def parse_page(content):
+    soup = BeautifulSoup(content, 'html.parser')
+    return soup.get_text()
+
+
 # Create target Directory if don't exist
 dir_name = sys.argv[1] if len(sys.argv) > 1 else '.'
 if (dir_name != '.') and (not os.path.exists(dir_name)):
@@ -43,18 +49,18 @@ while True:
     if check_url(user_command):
         status, page_content, url_p = page_load(user_command)
         if status:
-            print(page_content)
-            name_page_history = url_p[8:]
-            name_file =os.path.join(dir_name, name_page_history)
+            print(parse_page(page_content))
+            name_page_history = url_p[8:].replace('.', '')
+            name_file = os.path.join(dir_name, name_page_history)
             save_file(name_file, page_content)
             history.append(page_content)
             continue
         else:
             print('Error: Incorrect URL')
     else:
-        path_to_file = os.path.join(dir_name,user_command)
+        path_to_file = os.path.join(dir_name, user_command)
         if os.path.exists(path_to_file):
-            with open(path_to_file, 'r') as f:
-                print(f.read())
+            with open(path_to_file, 'r', encoding='utf-8') as f:
+                print(parse_page(f.read()))
         else:
             print('Error: Incorrect URL')
