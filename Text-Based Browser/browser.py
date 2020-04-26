@@ -28,7 +28,11 @@ def page_load(url):
 
 def parse_page(content):
     soup = BeautifulSoup(content, 'html.parser')
-    return soup.get_text()
+    res = []
+    for item in soup.body.children:
+        if type(item) == type(soup.p):
+            res.append(item.get_text(strip=True))
+    return '\n'.join(res)
 
 
 # Create target Directory if don't exist
@@ -52,8 +56,8 @@ while True:
             print(parse_page(page_content))
             name_page_history = url_p[8:].replace('.', '')
             name_file = os.path.join(dir_name, name_page_history)
-            save_file(name_file, page_content)
-            history.append(page_content)
+            save_file(name_file, parse_page(page_content))
+            history.append(parse_page(page_content))
             continue
         else:
             print('Error: Incorrect URL')
