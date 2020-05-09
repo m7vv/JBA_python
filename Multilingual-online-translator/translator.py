@@ -3,11 +3,13 @@ from bs4 import BeautifulSoup
 
 
 class Translator:
-    lang_short_long = {'en': 'english', 'ru': 'russian', 'fr': 'french'}
+    langs = {1: 'arabic', 2: 'german', 3: 'english', 4: 'spanish', 5: 'french',
+             6: 'hebrew', 7: 'japanese', 8: 'dutch', 9: 'polish', 10: 'portuguese',
+             11: 'romanian', 12: 'russian', 13: 'turkish'}
 
-    def __init__(self, source_lang, target_lang):
-        self.source_lang = source_lang
-        self.target_lang = target_lang
+    def __init__(self, source, target):
+        self.source_lang = source
+        self.target_lang = target
         self.trans_response = None
         self.word_trans = None
         self.word_trans_example = None
@@ -20,7 +22,7 @@ class Translator:
                     application/signed-exchange;v=b3;q=0.9',
                    'Accept-Encoding': 'gzip, deflate, br'
                    }
-        url = f'https://context.reverso.net/translation/{Translator.lang_short_long[self.source_lang]}-{Translator.lang_short_long[self.target_lang]}/{word}'
+        url = f'https://context.reverso.net/translation/{Translator.langs[self.source_lang]}-{Translator.langs[self.target_lang]}/{word}'
         self.trans_response = requests.get(url, headers=headers)
         return f'You chose "{self.target_lang}" as the as the language to translate "{word}"'
 
@@ -41,25 +43,26 @@ class Translator:
 
     def show_translation(self):
         number_of_examples = 5
-        print('Context examples:')
-        print(f'{Translator.lang_short_long[self.target_lang].capitalize()} Translations:')
+        print(f'{Translator.langs[self.target_lang].capitalize()} Translations:')
         print('\n'.join(self.word_trans[1:number_of_examples + 1]))
         print('')
-        print(f'{Translator.lang_short_long[self.target_lang].capitalize()} Examples:')
-        for example in zip(self.word_trans_example[1:2 * number_of_examples +1:2], self.word_trans_example[2:2 * number_of_examples +1:2]):
+        print(f'{Translator.langs[self.target_lang].capitalize()} Examples:')
+        for example in zip(self.word_trans_example[1:2 * number_of_examples + 1:2],
+                           self.word_trans_example[2:2 * number_of_examples + 1:2]):
             print(f'{example[0]}:\n {example[1]}\n')
 
+    @staticmethod
+    def show_avaible_lang():
+        for items in Translator.langs.items():
+            print(f'{items[0]}. {items[1].capitalize()}')
 
 
-
-target_l = input('Type "en" if you want to translate from French into English, '
-                 'or "fr" if you want to translate from English into French:')
-if target_l == 'en':
-    translator = Translator('fr', 'en')
-else:
-    translator = Translator('en', 'fr')
+Translator.show_avaible_lang()
+source_l_n = int(input('Type the number of your language:'))
+target_l_n = int(input('Type the number of language you want to translate to:'))
+translator = Translator(source_l_n, target_l_n)
 word_to_translate = input('Type the word you want to translate:')
-print(translator.translate(word_to_translate))
+translator.translate(word_to_translate)
 if translator.trans_response.status_code == 200:
     print('200 OK\n')
 translator.parsing()
