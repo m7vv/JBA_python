@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
 
 class Translator:
@@ -36,13 +37,12 @@ class Translator:
         section_ex = soup.find(id='examples-content')
         self.word_trans_example = ['Translation']
         for item in section_ex.find_all('div', class_="example"):
-            orig_text = item.find(class_="src ltr")
+            orig_text = item.find(class_=re.compile("src"))
             self.word_trans_example.append(orig_text.get_text().strip())
-            trans_text = item.find(class_="trg ltr")
+            trans_text = item.find(class_=re.compile("trg"))
             self.word_trans_example.append(trans_text.get_text().strip())
 
-    def show_translation(self):
-        number_of_examples = 5
+    def show_translation(self, number_of_examples=5):
         print(f'{Translator.langs[self.target_lang].capitalize()} Translations:')
         print('\n'.join(self.word_trans[1:number_of_examples + 1]))
         print('')
@@ -56,14 +56,26 @@ class Translator:
         for items in Translator.langs.items():
             print(f'{items[0]}. {items[1].capitalize()}')
 
+    def all_translation(self, word):
+        for lang_n in Translator.langs.keys():
+            if lang_n != self.source_lang:
+                self.target_lang = lang_n
+                self.translate(word)
+                self.parsing()
+                self.show_translation(1)
+
 
 Translator.show_avaible_lang()
 source_l_n = int(input('Type the number of your language:'))
-target_l_n = int(input('Type the number of language you want to translate to:'))
+target_l_n = int(
+    input('Type the number of a language you want to translate to or \'0\' to translate to all languages:'))
 translator = Translator(source_l_n, target_l_n)
 word_to_translate = input('Type the word you want to translate:')
-translator.translate(word_to_translate)
-if translator.trans_response.status_code == 200:
-    print('200 OK\n')
-translator.parsing()
-translator.show_translation()
+if target_l_n != 0:
+    translator.translate(word_to_translate)
+    if translator.trans_response.status_code == 200:
+        print('200 OK\n')
+    translator.parsing()
+    translator.show_translation()
+elif target_l_n == 0:
+    translator.all_translation(word_to_translate)
