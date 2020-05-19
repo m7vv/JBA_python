@@ -43,15 +43,23 @@ class Translator:
             trans_text = item.find(class_=re.compile("trg"))
             self.word_trans_example.append(trans_text.get_text().strip())
 
-    def show_translation(self, number_of_examples=5, file_= sys.stderr):
-        print(f'{Translator.langs[self.target_lang].capitalize()} Translations:', file = file_)
-        print('\n'.join(self.word_trans[1:number_of_examples + 1]), file = file_)
-        print('', file = file_)
-        print(f'{Translator.langs[self.target_lang].capitalize()} Examples:', file = file_)
+    def show_translation(self, number_of_examples=5):
+        print(f'{Translator.langs[self.target_lang].capitalize()} Translations:')
+        print('\n'.join(self.word_trans[1:number_of_examples + 1]))
+        print('')
+        print(f'{Translator.langs[self.target_lang].capitalize()} Examples:')
         for example in zip(self.word_trans_example[1:2 * number_of_examples + 1:2],
                            self.word_trans_example[2:2 * number_of_examples + 1:2]):
-            print(f'{example[0]}:\n {example[1]}\n', file = file_)
+            print(f'{example[0]}:\n {example[1]}\n')
 
+    def show_translationFile(self, number_of_examples=5, file_=sys.stderr):
+        print(f'{Translator.langs[self.target_lang].capitalize()} Translations:', file=file_)
+        print('\n'.join(self.word_trans[1:number_of_examples + 1]), file=file_)
+        print('', file=file_)
+        print(f'{Translator.langs[self.target_lang].capitalize()} Examples:', file=file_)
+        for example in zip(self.word_trans_example[1:2 * number_of_examples + 1:2],
+                           self.word_trans_example[2:2 * number_of_examples + 1:2]):
+            print(f'{example[0]}:\n {example[1]}\n', file=file_)
 
     @staticmethod
     def show_avaible_lang():
@@ -66,8 +74,7 @@ class Translator:
                     self.translate(word)
                     self.parsing()
                     self.show_translation(1)
-                    self.show_translation(1, file_=f1)
-
+                    self.show_translationFile(1, file_=f1)
 
 
 Translator.show_avaible_lang()
