@@ -13,10 +13,10 @@ def get_key(_dict, val):
 
 
 class Translator:
-    langs = { 0:'all',
-            1: 'arabic', 2: 'german', 3: 'english', 4: 'spanish', 5: 'french',
-            6: 'hebrew', 7: 'japanese', 8: 'dutch', 9: 'polish', 10: 'portuguese',
-            11: 'romanian', 12: 'russian', 13: 'turkish'}
+    langs = {0: 'all',
+             1: 'arabic', 2: 'german', 3: 'english', 4: 'spanish', 5: 'french',
+             6: 'hebrew', 7: 'japanese', 8: 'dutch', 9: 'polish', 10: 'portuguese',
+             11: 'romanian', 12: 'russian', 13: 'turkish'}
 
     def __init__(self, source, target):
         self.source_lang = source
@@ -78,7 +78,7 @@ class Translator:
     def all_translation(self, word):
         with open(f'{word}.txt', 'w', encoding='UTF-8') as f1:
             for lang_n in Translator.langs.keys():
-                if lang_n != self.source_lang:
+                if lang_n != self.source_lang and lang_n != 0:
                     self.target_lang = lang_n
                     self.translate(word)
                     self.parsing()
@@ -93,7 +93,6 @@ target_l = sys.argv[2]
 word_to_translate = sys.argv[3]
 source_l_n = get_key(Translator.langs, source_l)
 target_l_n = get_key(Translator.langs, target_l)
-
 
 # Translator.show_avaible_lang()
 # source_l_n = int(input('Type the number of your language:'))
