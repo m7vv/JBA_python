@@ -4,10 +4,19 @@ import re
 import sys
 
 
+# function to return key for any value
+def get_key(_dict, val):
+    for key, value in _dict.items():
+        if val == value:
+            return key
+    raise Exception(f"Language {val} doesn't exist in service")
+
+
 class Translator:
-    langs = {1: 'arabic', 2: 'german', 3: 'english', 4: 'spanish', 5: 'french',
-             6: 'hebrew', 7: 'japanese', 8: 'dutch', 9: 'polish', 10: 'portuguese',
-             11: 'romanian', 12: 'russian', 13: 'turkish'}
+    langs = { 0:'all',
+            1: 'arabic', 2: 'german', 3: 'english', 4: 'spanish', 5: 'french',
+            6: 'hebrew', 7: 'japanese', 8: 'dutch', 9: 'polish', 10: 'portuguese',
+            11: 'romanian', 12: 'russian', 13: 'turkish'}
 
     def __init__(self, source, target):
         self.source_lang = source
@@ -77,16 +86,24 @@ class Translator:
                     self.show_translationFile(1, file_=f1)
 
 
-Translator.show_avaible_lang()
-source_l_n = int(input('Type the number of your language:'))
-target_l_n = int(
-    input('Type the number of a language you want to translate to or \'0\' to translate to all languages:'))
+if len(sys.argv) != 4:
+    sys.exit(0)
+source_l = sys.argv[1]
+target_l = sys.argv[2]
+word_to_translate = sys.argv[3]
+source_l_n = get_key(Translator.langs, source_l)
+target_l_n = get_key(Translator.langs, target_l)
+
+
+# Translator.show_avaible_lang()
+# source_l_n = int(input('Type the number of your language:'))
+# target_l_n = int(input('Type the number of a language you want to translate to or \'0\' to translate to all languages:'))
 translator = Translator(source_l_n, target_l_n)
-word_to_translate = input('Type the word you want to translate:')
+# word_to_translate = input('Type the word you want to translate:')
 if target_l_n != 0:
     translator.translate(word_to_translate)
-    if translator.trans_response.status_code == 200:
-        print('200 OK\n')
+    # if translator.trans_response.status_code == 200:
+    #     print('200 OK\n')
     translator.parsing()
     translator.show_translation()
 elif target_l_n == 0:
