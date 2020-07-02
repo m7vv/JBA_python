@@ -91,19 +91,26 @@ if len(sys.argv) != 4:
 source_l = sys.argv[1]
 target_l = sys.argv[2]
 word_to_translate = sys.argv[3]
-source_l_n = get_key(Translator.langs, source_l)
-target_l_n = get_key(Translator.langs, target_l)
+try:
+    source_l_n = get_key(Translator.langs, source_l)
+    target_l_n = get_key(Translator.langs, target_l)
+except:
+    print(f"Sorry, the program doesn't support {target_l}")
+    sys.exit()
 
 # Translator.show_avaible_lang()
 # source_l_n = int(input('Type the number of your language:'))
 # target_l_n = int(input('Type the number of a language you want to translate to or \'0\' to translate to all languages:'))
 translator = Translator(source_l_n, target_l_n)
 # word_to_translate = input('Type the word you want to translate:')
-if target_l_n != 0:
-    translator.translate(word_to_translate)
-    # if translator.trans_response.status_code == 200:
-    #     print('200 OK\n')
-    translator.parsing()
-    translator.show_translation()
-elif target_l_n == 0:
-    translator.all_translation(word_to_translate)
+try:
+    if target_l_n != 0:
+        translator.translate(word_to_translate)
+        # if translator.trans_response.status_code == 200:
+        #     print('200 OK\n')
+        translator.parsing()
+        translator.show_translation()
+    elif target_l_n == 0:
+        translator.all_translation(word_to_translate)
+except AttributeError:
+    print(f"Sorry, unable to find {word_to_translate}")
