@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
-
+#model task table class
 class Table(Base):
     __tablename__ = 'task'
     id = Column(Integer, primary_key=True)
@@ -21,10 +21,10 @@ class Table(Base):
 class ToDoList:
 
     def __init__(self, db_name='todo.db'):
-        self.engine = create_engine(f'sqlite:///{db_name}?check_same_thread=False')
-        Base.metadata.create_all(self.engine)
-        self.Session = sessionmaker(bind=self.engine)
-        self.session = self.Session()
+        engine = create_engine(f'sqlite:///{db_name}?check_same_thread=False')
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
 
     def add(self, task_desk):
         new_row = Table(task=task_desk)
