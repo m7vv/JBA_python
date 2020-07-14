@@ -30,7 +30,7 @@ class ToDoList:
         new_row = Table(task=task_desk, deadline=task_date)
         self.session.add(new_row)
         self.session.commit()
-        print('The task has been added!')
+        print('The task has been added!\n')
 
     def show_date(self, task_date, day_name=None):
         rows = self.session.query(Table).filter(Table.deadline == task_date.date()).all()
@@ -59,24 +59,53 @@ class ToDoList:
         print('All tasks:')
         rows = self.session.query(Table).all()
         if len(rows) == 0:
-            print('Nothing to do!')
+            print('Nothing is missed!')
         else:
             for number, item in enumerate(rows, 1):
                 print(f"{number}) {item.task}. {item.deadline.day} {item.deadline.strftime('%b')}")
                 print(item.deadline)
 
+    def show_missed(self):
+        print('Missed tasks:')
+        rows = self.session.query(Table).filter(Table.deadline < datetime.today()).order_by(Table.deadline).all()
+        if len(rows) == 0:
+            print('Nothing is missed!\n')
+        else:
+            for number, item in enumerate(rows, 1):
+                print(f"{number}) {item.task}. {item.deadline.day} {item.deadline.strftime('%b')}")
+                print(item.deadline)
+        print('')
+
+    def delete_missed(self):
+        print('Chose the number of the task you want to delete:')
+        rows = self.session.query(Table).filter(Table.deadline < datetime.today()).order_by(Table.deadline).all()
+        if len(rows) == 0:
+            print('Nothing is missed!\n')
+            return
+        else:
+            for number, item in enumerate(rows, 1):
+                print(f"{number}) {item.task}. {item.deadline.day} {item.deadline.strftime('%b')}")
+                print(item.deadline)
+        number_of_row = int(input()) - 1
+        self.session.delete(rows[number_of_row])
+        self.session.commit()
+        print('The task has been deleted!\n')
+
     def show_commands(self):
         print('1) Today\'s tasks')
         print('2) Week\'s tasks')
         print('3) All tasks')
-        print('4) Add task')
-        print('0) Exit\n')
+        print('4) Missed tasks')
+        print('5) Add task')
+        print('6) Delete task')
+        print('0) Exit')
 
 
 tasks = ToDoList()
 while True:
     tasks.show_commands()
-    user_command = input()
+    user_command = input('')
+    print('')
     if '1' == user_command:
         tasks.show_today()
     elif '2' == user_command:
@@ -84,9 +113,13 @@ while True:
     elif '3' == user_command:
         tasks.show_all()
     elif '4' == user_command:
+        tasks.show_missed()
+    elif '5' == user_command:
         task_desc = input('Enter task\n')
         task_date = datetime.strptime(input('Enter deadline\n'), '%Y-%m-%d')
         tasks.add(task_desc, task_date)
+    elif '6' == user_command:
+        tasks.delete_missed()
     elif '0' == user_command:
         print('Bye!')
         break
