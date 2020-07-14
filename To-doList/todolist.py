@@ -1,13 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.orm import sessionmaker
-
 
 Base = declarative_base()
 
-#model task table class
+
+# model task table class
 class Table(Base):
     __tablename__ = 'task'
     id = Column(Integer, primary_key=True)
@@ -26,32 +26,67 @@ class ToDoList:
         Session = sessionmaker(bind=engine)
         self.session = Session()
 
-    def add(self, task_desk):
-        new_row = Table(task=task_desk)
+    def add(self, task_desk, task_date):
+        new_row = Table(task=task_desk, deadline=task_date)
         self.session.add(new_row)
         self.session.commit()
+        print('The task has been added!')
 
-    def show_today(self):
-        rows = self.session.query(Table).all()
-        print('Today:')
+    def show_date(self, task_date, day_name=None):
+        rows = self.session.query(Table).filter(Table.deadline == task_date.date()).all()
+        day_name = task_date.strftime('%A') if day_name is None else day_name
+        month_name = task_date.strftime('%b')
+        print(f'{day_name} {task_date.day} {month_name}:')
         if len(rows) == 0:
             print('Nothing to do!')
         else:
             for number, item in enumerate(rows, 1):
                 print(f'{number}) {item.task}')
+        print('')
+
+    def show_today(self):
+        self.show_date(datetime.today(), day_name='Today')
+
+    def show_week(self):
+        today = datetime.today()
+        i = 0
+        while i <= 6:
+            week_day = today + timedelta(days=i)
+            self.show_date(week_day)
+            i += 1
+
+    def show_all(self):
+        print('All tasks:')
+        rows = self.session.query(Table).all()
+        if len(rows) == 0:
+            print('Nothing to do!')
+        else:
+            for number, item in enumerate(rows, 1):
+                print(f"{number}) {item.task}. {item.deadline.day} {item.deadline.strftime('%b')}")
+                print(item.deadline)
+
+    def show_commands(self):
+        print('1) Today\'s tasks')
+        print('2) Week\'s tasks')
+        print('3) All tasks')
+        print('4) Add task')
+        print('0) Exit\n')
 
 
 tasks = ToDoList()
 while True:
-    print('1) Today\'s tasks')
-    print('2) Add task')
-    print('0) Exit')
+    tasks.show_commands()
     user_command = input()
-    if '2' == user_command:
-        task = input('Enter task\n')
-        tasks.add(task)
-    elif '1' == user_command:
+    if '1' == user_command:
         tasks.show_today()
+    elif '2' == user_command:
+        tasks.show_week()
+    elif '3' == user_command:
+        tasks.show_all()
+    elif '4' == user_command:
+        task_desc = input('Enter task\n')
+        task_date = datetime.strptime(input('Enter deadline\n'), '%Y-%m-%d')
+        tasks.add(task_desc, task_date)
     elif '0' == user_command:
         print('Bye!')
         break
