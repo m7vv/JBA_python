@@ -11,6 +11,11 @@ class DelimiterError(Exception):
         return "Invalid input! The number can't be bigger than 1000000."
 
 
+class WrongChooseError(Exception):
+    def __str__(self):
+        return "No such option! Try again!"
+
+
 class Robogotchi:
 
     def __init__(self):
@@ -25,7 +30,7 @@ class Robogotchi:
             user_input = input("What is your number?\n")
             if user_input == 'exit game':
                 self.end_game()
-                break
+                return
             try:
                 user_number = int(user_input)
                 if user_number < 0:
@@ -54,6 +59,32 @@ class Robogotchi:
                 print(f"The goal number is {chosen_number}.")
                 print(turn_result)
 
+    def game_rock(self):
+        beats = {'scissors': 'paper', 'paper': 'rock', 'rock': 'scissors'}
+        while True:
+            robot_choose = random.choice(list(beats.keys()))
+            user_choose = input("What is your move?\n")
+            if user_choose == 'exit game':
+                self.end_game()
+                return
+            try:
+                if user_choose not in beats:
+                    raise WrongChooseError
+            except WrongChooseError as e:
+                print(e)
+            else:
+                if user_choose == robot_choose:
+                    self.draws += 1
+                    turn_result = 'It\'s a draw!'
+                elif beats[user_choose] == robot_choose:
+                    self.user_won += 1
+                    turn_result = 'You won!'
+                else:
+                    self.robot_won += 1
+                    turn_result = 'The robot won!'
+                print(f"The robot chose {robot_choose}.")
+                print(turn_result)
+
     def end_game(self):
         print(f"You won: {self.user_won},")
         print(f"The robot won: {self.robot_won},")
@@ -61,4 +92,13 @@ class Robogotchi:
 
 
 robot = Robogotchi()
-robot.game_numbers()
+while True:
+    user_input = input('Which game would you like to play?\n')
+    if user_input.lower() == 'Numbers'.lower():
+        robot.game_numbers()
+    elif user_input.lower() == 'Rock-paper-scissors'.lower():
+        robot.game_rock()
+    else:
+        print('Please choose a valid option: Numbers or Rock-paper-scissors?')
+        continue
+    break
